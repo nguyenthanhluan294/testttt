@@ -2,4 +2,4 @@
 
 # Local Dev
 
-    DATABASE_URL=postgres://localhost:5432 npm start
+  PGSSLMODE=require  DATABASE_URL=postgres://localhost:5432 npm start
