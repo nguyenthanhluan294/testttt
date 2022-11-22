@@ -8,19 +8,12 @@ app.set('port', process.env.PORT || 5000);
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
-
-var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/herokuconnectsfcontact';
-
-if (process.env.DATABASE_URL !== undefined) {
-    pg.defaults.ssl = true;
-  }
-
-  var client = new pg.Client(connectionString);
-  client.connect();
-
+pg.defaults.ssl = true;
 app.post('/update', function(req, res) {
+    pg.connect(process.env.DATABASE_URL, function (err, conn, done) {
         // watch for any connect issues
-        client.query(
+        if (err) console.log(err);
+        conn.query(
             'UPDATE salesforce.Contact SET Phone = $1, MobilePhone = $1 WHERE LOWER(FirstName) = LOWER($2) AND LOWER(LastName) = LOWER($3) AND LOWER(Email) = LOWER($4)',
             [req.body.phone.trim(), req.body.firstName.trim(), req.body.lastName.trim(), req.body.email.trim()],
             function(err, result) {
@@ -45,8 +38,8 @@ app.post('/update', function(req, res) {
                 }
             }
         );
+    });
 });
-
 app.listen(app.get('port'), function () {
     console.log('Express server listening on port ' + app.get('port'));
 });
